@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 脱敏脚本备份（一次性工具，不进仓库）
+*.bak
+sanitize.js
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+
+# 环境与凭证
+.env
+.env.local
+venv/
+.venv/
+node_modules/
+
+# 语料（重要：本仓库只发方法，不发任何第三方语料原文）
+corpus/
+raw/
+transcripts/
+*.srt
+*.vtt
+*.ass
+.env.*
+!.env.example
+
+# 私有语料、身份映射与分析证据（不清除已跟踪文件或 Git 历史）
+private/
+reference-notes/
+raw-notes/
+*opening-corpus-*.md
+*account-map*

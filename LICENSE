@@ -1,0 +1,34 @@
+Voiceprint to Skill 自用许可 v1.0
+Self-Use License — No Third-Party Development
+
+Copyright (c) 2026 voiceprint-to-skill 作者。保留所有未明确授予的权利。
+授权联系：微信 ysy985221；邮箱 2354724714@qq.com
+
+1. 适用范围
+本许可适用于本仓库作者拥有权利的 SKILL.md、文档、模板、脚本及其他原创材料（下称“本项目”）。第三方材料仍适用其各自的许可，本许可不限制第三方权利人已经授予的权利。
+
+2. 允许自用
+你可以下载、阅读、安装、运行、研究本项目，并为你自己修改、配置、集成或二次开发。
+“自用”指自然人为自己使用，或者法人/组织在同一法律主体内部为自身业务使用。为自己的账号、内容、工作流程和内部工具使用属于自用。
+自用可以包含自身商业活动，但不包括向客户、其他法律主体或其他第三方提供本项目及其衍生技能或工具。
+
+3. 禁止为第三方二次开发或交付
+未经作者另行书面授权，你不得为他人或第三方对本项目进行修改、定制、集成、封装、部署或二次开发，也不得向第三方交付或提供由此形成的技能、模板、知识库、程序、产品或服务。
+上述限制同时适用于有偿和无偿行为，包括客户定制、代开发、代部署、培训附带交付，以及将本项目或其衍生技能/工具用于面向第三方的托管服务、API、SaaS 或产品。
+基于本项目蒸馏出的创作 Skill 及其配套规则/模板，仅限自用；为第三方制作或交付这些产物需另行书面授权。
+仅通过自用生成的普通文章、文案等最终内容，不因使用本项目而自动适用本许可；但其中包含本项目的技能文件、规则、模板或代码时，相应部分仍受本许可约束。
+
+4. 保留声明与其他授权
+自用副本和修改副本应保留本许可及版权声明，不得删除上述限制或将本项目标为 MIT、Apache-2.0 等宽松许可。
+你可以分享本仓库链接。不授予再许可或对外分发本项目及其修改副本的权利；GitHub 平台自身条款赋予的浏览及站内 Fork 等权利仍依其条款执行，Fork 不免除本许可中的使用限制。
+需要第三方开发、交付、分发或服务授权，请联系微信 ysy985221 或邮箱 2354724714@qq.com，并取得作者明确的书面授权；仅发送咨询不构成授权。
+
+5. 免责声明
+本项目按“现状”提供，在适用法律允许的范围内，作者不提供适销性、特定用途适用性或不侵权等担保，不对使用本项目产生的损失承担责任。
+本许可不授予对第三方语料、商标、人设、经历或其他材料的任何权利。
+
+6. 许可性质
+本项目为源码公开（source-available），并附带使用限制，不属于 OSI 定义的开源软件。本许可的中文文本为解释依据。
+
+English summary (the Chinese terms above govern):
+You may read, download, use and modify this project for your own use or within the same legal entity, including your own business activities. Without separate written permission, you may not develop, customize, integrate, package, deploy or deliver it or derivative skills/tools for any third party, whether paid or unpaid, or offer it through third-party-facing services. Ordinary final articles or copy generated for your own use are not automatically covered. No sublicensing or external redistribution rights are granted. Third-party licenses remain applicable. Contact: WeChat ysy985221; email 2354724714@qq.com.
