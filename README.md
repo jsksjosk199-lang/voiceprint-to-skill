@@ -37,6 +37,8 @@
 
 ## 安装
 
+以下安装命令需要 Git；两个辅助工具需要 Python 3.9+，均只使用标准库。
+
 WorkBuddy（macOS / Linux / Git Bash）：
 
 ```bash
@@ -54,6 +56,27 @@ git clone https://github.com/jsksjosk199-lang/voiceprint-to-skill.git "$env:USER
 Codex 用户可将安装目录改为 `~/.codex/skills/voiceprint-to-skill`。其他支持 Agent Skills 的工具使用各自的 skills 目录。
 
 可用请求：“把这份字幕做成创作 Skill”“根据我的文章提炼文风”“把这些文案蒸馏成可复用的写作规则”。
+
+## 辅助工具
+
+在安装目录运行统计工具，输入与统计结果都保存在自己的私有工作区：
+
+```powershell
+python -X utf8 references/template-stat-script.py "自己的私有语料目录"
+```
+
+仅统计该目录第一层的 `.txt` 正文行，自动过滤常见字幕元信息；每行是一个统计单元，不自动按标点切句。空语料会给出失败原因；没有中文时不计算中文密度。
+
+检查项目级副本，默认不修改文件；确认路径和差异后，加 `--sync` 同步：
+
+```powershell
+python -X utf8 references/tool-sync-copies.py voiceprint-to-skill "自己的项目根目录"
+python -X utf8 references/tool-sync-copies.py voiceprint-to-skill --sync "自己的项目根目录"
+```
+
+默认源为用户级 `.workbuddy/skills/voiceprint-to-skill`，目标为指定项目的 `.workbuddy/skills/voiceprint-to-skill`。Codex 可增加 `--project-layout codex --skills-root "用户级 .codex/skills 目录"`。Bash 用户也可通过 [Shell 入口](references/tool-sync-copies.sh) 传入相同参数。
+
+同步先暂存并校验，保留目标旧目录的 `.bak` 备份；拒绝异常技能名、重叠目录、符号链接和 Windows junction。Git 元数据、常见私有语料目录及 `.env` 不从源复制。**排除规则不能识别任意文件中的个人信息；同步前仍应检查源文件，备份也不能公开。** 实现见 [同步工具](references/tool-sync-copies.py)。
 
 ## 目录
 
@@ -108,4 +131,4 @@ voiceprint-to-skill/
 
 第三方原有贡献仍按各自许可授权，本项目不能取消这些权利。来源、改写范围和原许可见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。本项目许可也不授权使用他人的语料或个人信息。
 
-当前发行：v1.18.0 · 2026-10-02。
+当前发行：v1.18.1 · 2026-10-02。

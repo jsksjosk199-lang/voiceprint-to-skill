@@ -1,81 +1,102 @@
 # -*- coding: utf-8 -*-
-"""【模板】语料全量指纹统计脚本（可复用）
-用法：把 CORPUS 改成目标语料目录，运行即输出该账号的皮相指纹。
-产出：句末语气词/口头禅/句首词/"你"密度/呢化连接词/纯断句判断——这是 style-guide 与 anchor-sentences 的数据基础。
+"""中文表达统计模板。Python 3.9+，只读输入，不写文件。
+
+用法：python template-stat-script.py "语料目录"
+也可修改 CORPUS 后直接运行。只统计目录第一层的 .txt 文件（排除 README）。
+每条非空正文行是一个断句单元；不自动按标点切句。原文与输出均留在私有工作区。
 """
-import os, re, glob
+import argparse
 from collections import Counter
+from pathlib import Path
+import re
+import statistics
+import sys
 
-CORPUS = r"改成你的语料目录"  # ← 改这里，指向字幕/文本目录
+CORPUS = r"改成你的语料目录"
+HEADER = re.compile(r"^(?:标题|UP主|BV号|时长|播放|字幕来源)\s*[:：]", re.I)
+CHINESE_RUN = re.compile(r"[\u4e00-\u9fff]+")
+END_PUNCTUATION = "。？！!?，,；;：:、…—.\"'”’）)]】}」』〉》"
 
-files = sorted(glob.glob(os.path.join(CORPUS, "*.txt")))
-files = [f for f in files if "README" not in os.path.basename(f)]
 
 def read_body(path):
-    """去掉 B 站字幕头部元信息（标题/UP主/BV号/时长…），只留正文断句行"""
-    with open(path, encoding="utf-8") as fp:
-        lines = fp.read().split("\n")
-    out = []
-    for ln in lines:
-        if ln.startswith("===="): continue
-        if any(ln.startswith(k) for k in ["标题:","UP主:","BV号:","时长:","播放:","字幕来源:"]):
-            continue
-        out.append(ln.strip())
-    return [s for s in out if s]
+    """读取 UTF-8（含 BOM）；过滤常见字幕元信息和分隔线。"""
+    lines = path.read_text(encoding="utf-8-sig").splitlines()
+    return [line for raw in lines if (line := raw.strip())
+            and not line.startswith("====") and not HEADER.match(line)]
 
-all_segs = []   # 所有断句单元（每行一句）
-all_zh = ""     # 所有纯中文字符
-for f in files:
-    segs = read_body(f)
-    all_segs.extend(segs)
-    all_zh += "".join(re.findall(r"[\u4e00-\u9fff]", " ".join(segs)))
 
-print(f"文件数:{len(files)}  断句单元:{len(all_segs)}  纯中文字符:{len(all_zh)}")
-k = len(all_zh)/1000
+def analyze(corpus):
+    if not corpus.is_dir():
+        raise ValueError("语料目录不存在；请传入实际目录，或先修改 CORPUS。")
+    files = sorted(p for p in corpus.iterdir() if p.is_file()
+                   and p.suffix.lower() == ".txt" and "readme" not in p.name.lower())
+    segments = [line for path in files for line in read_body(path)]
+    if not segments:
+        raise ValueError("没有可统计的正文：检查目录第一层的 .txt 文件及元信息过滤。")
+    # 连续中文片段分别统计，避免跨行、跨文件、跨标点拼出不存在的词。
+    runs = [run for segment in segments for run in CHINESE_RUN.findall(segment)]
+    chinese_count = sum(map(len, runs))
+    count_word = lambda word: sum(run.count(word) for run in runs)
+    print(f"文件数:{len(files)}  断句单元:{len(segments)}  纯中文字符:{chinese_count}")
+    print("口径：每条正文行为一个单元；行长含标点和非中文字符；中文密度以中文字符数为分母。")
 
-# 1. 句末语气词
-end_moody = Counter()
-for s in all_segs:
-    m = re.search(r"[呢啊哈吧呀啦嘛]$", s)
-    if m: end_moody[m.group()] += 1
-print("\n【句末语气词】", dict(end_moody.most_common()))
+    endings = Counter()
+    for segment in segments:
+        ending = segment.rstrip().rstrip(END_PUNCTUATION).rstrip()
+        match = re.search(r"[呢啊哈吧呀啦嘛]$", ending)
+        if match:
+            endings[match.group()] += 1
+    print("\n【句末语气词】", dict(endings.most_common()))
 
-# 2. 高频口头禅
-kouchan = ["大家","其实","但是","所以","比如","说实话","对不对","是不是","对吧","真的","而且","然后","一定要","说白了"]
-print("\n【口头禅频次】")
-for w in kouchan:
-    c = all_zh.count(w)
-    if c: print(f"  {w}: {c}")
+    print("\n【口头禅频次】")
+    for word in ["大家", "其实", "但是", "所以", "比如", "说实话", "对不对", "是不是",
+                 "对吧", "真的", "而且", "然后", "一定要", "说白了"]:
+        count = count_word(word)
+        if count:
+            print(f"  {word}: {count}")
 
-# 3. 人称密度（我/你/我们 —— "我">"你" 多为演示型；反之多为说教型）
-you = all_zh.count("你"); wo = all_zh.count("我"); women = all_zh.count("我们")
-print(f"\n【人称密度】你:{you}({you/k:.0f}/千字)  我:{wo}({wo/k:.0f}/千字)  我们:{women}({women/k:.0f}/千字)")
-print("  → 我 >> 你：演示型（我做给你看）；你 >> 我：说教型（你应该）")
+    print("\n【人称密度】（字面计数：我包含我们中的我，各项可能重叠）")
+    for word in ["你", "我", "我们"]:
+        count = count_word(word)
+        density = f"{count * 1000 / chinese_count:.0f}/千字" if chinese_count else "不适用：无中文字符"
+        print(f"  {word}:{count}({density})")
+    print("  人称频次是观察指标；结合上下文分析，不能直接证明文体或效果。")
 
-# 3b. 句长分布（最强指纹之一，必看）
-lens = sorted(len(s) for s in all_segs)
-print(f"\n【句长】平均{sum(lens)/len(lens):.1f}字  中位数{lens[len(lens)//2]}  最短{lens[0]}  最长{lens[-1]}")
-print(f"  <=10字占比:{sum(1 for l in lens if l<=10)/len(lens):.0%}  <=20字占比:{sum(1 for l in lens if l<=20)/len(lens):.0%}")
+    lengths = [len(segment) for segment in segments]
+    print(f"\n【行长】平均{statistics.mean(lengths):.1f}字  中位数{statistics.median(lengths):g}"
+          f"  最短{min(lengths)}  最长{max(lengths)}")
+    print(f"  <=10字占比:{sum(length <= 10 for length in lengths) / len(lengths):.0%}"
+          f"  <=20字占比:{sum(length <= 20 for length in lengths) / len(lengths):.0%}")
 
-# 3c. 通用 2-gram 高频词（先跑这个，再据此重写上方 kouchan 词表！）
-print("\n【高频2字词TOP40（据此改 kouchan 词表）】")
-w2 = Counter(re.findall(r"(?=([\u4e00-\u9fff]{2}))", all_zh))
-for w,c in w2.most_common(40): print(f"  {w}:{c}")
+    bigrams = Counter(run[index:index + 2] for run in runs for index in range(len(run) - 1))
+    print("\n【高频2字片段TOP40（片段不等于分词结果）】")
+    for word, count in bigrams.most_common(40):
+        print(f"  {word}:{count}")
+    print("\n【呢化连接词】")
+    for word in ["但是呢", "所以呢", "然后呢", "而且呢", "其实呢", "这个呢"]:
+        count = count_word(word)
+        if count:
+            print(f"  {word}: {count}")
+    for width in [2, 3]:
+        print(f"\n【行首{width}字TOP20（保留原行标点）】")
+        starts = Counter(segment[:width] for segment in segments if len(segment) >= width)
+        for word, count in starts.most_common(20):
+            print(f"  {word}:{count}")
+    punctuated = sum(bool(re.search(r"[。？！，]", segment)) for segment in segments)
+    print(f"\n【标点观察】含常见中文标点的行:{punctuated}/{len(segments)}；转写标点可能由转写工具加入。")
 
-# 4. 呢化连接词
-print("\n【呢化连接词】")
-for w in ["但是呢","所以呢","然后呢","而且呢","其实呢","这个呢"]:
-    c = all_zh.count(w)
-    if c: print(f"  {w}: {c}")
 
-# 5. 句首高频（2/3字）
-print("\n【句首2字TOP20】")
-c2 = Counter(s[:2] for s in all_segs if len(s)>=2)
-for w,c in c2.most_common(20): print(f"  {w}:{c}")
-print("\n【句首3字TOP20】")
-c3 = Counter(s[:3] for s in all_segs if len(s)>=3)
-for w,c in c3.most_common(20): print(f"  {w}:{c}")
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("corpus", nargs="?", default=CORPUS, type=Path)
+    args = parser.parse_args()
+    try:
+        analyze(args.corpus)
+    except (ValueError, OSError, UnicodeError) as error:
+        print(f"统计失败：{error}", file=sys.stderr)
+        return 1
+    return 0
 
-# 6. 是否纯断句（统计有无常见中文标点）
-has_punct = sum(1 for s in all_segs if re.search(r"[。？！，]", s))
-print(f"\n【标点判断】含标点断句比例:{has_punct}/{len(all_segs)}  (若极低→B站纯断句，短句+语气词当句号)")
+
+if __name__ == "__main__":
+    sys.exit(main())

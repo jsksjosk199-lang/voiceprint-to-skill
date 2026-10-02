@@ -105,7 +105,7 @@ YAML 文件头使用合法技能名和简洁用途描述；正文解释触发范
 - 不确定性、来源层级和未完成项可见。
 - 如果使用原作做本地对照，原作与摘录只保留在私有工作区；对外发布需要另行检查权利。
 
-有多个技能副本时先比对再同步，参考 [references/tool-sync-copies.sh](references/tool-sync-copies.sh)。编辑后检查实际文件和产出，不以操作返回成功代替验证。
+有多个技能副本时先比对再同步，参考 [references/tool-sync-copies.py](references/tool-sync-copies.py)（[Bash 入口](references/tool-sync-copies.sh)）。默认只检查；同步必须明确目标项目，保留旧副本备份并排除常见私有路径。排除规则不能替代发布前的内容检查。编辑后检查实际文件和产出，不以操作返回成功代替验证。
 
 完成条件：试写通过真实性、表达、知识、用途与发布边界检查，问题已经回填。
 
@@ -123,4 +123,4 @@ YAML 文件头使用合法技能名和简洁用途描述；正文解释触发范
 
 本项目当前默认只公开通用方法、空白模板和适用许可范围内的资料。项目许可与第三方权利见 [LICENSE](LICENSE)、[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)、[ETHICS.md](ETHICS.md)。
 
-当前发行：v1.18.0 · 2026-10-02。
+当前发行：v1.18.1 · 2026-10-02。
