@@ -37,7 +37,25 @@
 
 ## 安装
 
-以下安装命令需要 Git；两个辅助工具需要 Python 3.9+，均只使用标准库。
+### Skills CLI
+
+需要 Git 和 Node.js 22.20+（含 npm / npx）。在希望使用该技能的项目目录中运行：
+
+```bash
+npx skills add jsksjosk199-lang/voiceprint-to-skill
+```
+
+按提示选择 CLI 支持的 Agent 和安装方式；当前已验证 Skills CLI 1.7.0 能发现本技能，并完成 Codex 项目安装。也可以显式指定 Codex，并复制文件：
+
+```bash
+npx skills add jsksjosk199-lang/voiceprint-to-skill --skill voiceprint-to-skill --agent codex --copy
+```
+
+默认安装到当前项目的技能目录；Codex 项目目录为 `.agents/skills/voiceprint-to-skill`。如需安装到用户级目录，可增加 `--global`。更多选项见 [Skills CLI 官方说明](https://github.com/vercel-labs/skills#install-a-skill)。
+
+### 直接使用 Git
+
+以下方式只需要 Git；两个辅助工具另需 Python 3.9+，均只使用标准库。
 
 WorkBuddy（macOS / Linux / Git Bash）：
 
